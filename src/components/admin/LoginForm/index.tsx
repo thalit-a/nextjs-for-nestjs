@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { loginAction } from "@/actions/login/login-action";
-import { Button } from "@/components/Button";
-import { InputText } from "@/components/InputText";
-import clsx from "clsx";
-import { LogInIcon } from "lucide-react";
-import { useActionState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { loginAction } from '@/actions/login/login-action';
+import { Button } from '@/components/Button';
+import { InputText } from '@/components/InputText';
+import clsx from 'clsx';
+import { LogInIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useActionState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 export function LoginForm() {
   const initialState = {
     username: '',
     error: '',
   };
-
   const [state, action, isPending] = useActionState(loginAction, initialState);
 
   useEffect(() => {
@@ -39,6 +39,7 @@ export function LoginForm() {
           disabled={isPending}
           defaultValue={state.username}
         />
+
         <InputText
           type='password'
           name='password'
@@ -52,7 +53,12 @@ export function LoginForm() {
           Entrar
         </Button>
 
+        <p className='text-sm/tight'>
+          <Link href='/user/new'>Criar minha conta</Link>
+        </p>
+
         {!!state.error && <p className='text-red-600'>{state.error}</p>}
       </form>
     </div>
-  );}
+  );
+}
