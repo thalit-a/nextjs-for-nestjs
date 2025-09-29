@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 import { redirect } from 'next/navigation';
@@ -15,20 +14,22 @@ type JwtPayload = {
   expiresAt: Date;
 };
 
-export async function hashPassword(password: string) {
-  const hash = await bcrypt.hash(password, 10);
-  const base64 = Buffer.from(hash).toString('base64');
-  return base64;
-}
-
-export async function verifyPassword(password: string, base64Hash: string) {
-  const hash = Buffer.from(base64Hash, 'base64').toString('utf-8');
-  return bcrypt.compare(password, hash);
-}
-
 export async function createLoginSession(username: string) {
   const expiresAt = new Date(Date.now() + loginExpSeconds * 1000);
   const loginSession = await signJwt({ username, expiresAt });
+  const cookieStore = await cookies();
+
+  cookieStore.set(loginCookieName, loginSession, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    expires: expiresAt,
+  });
+}
+
+export async function createLoginSessionFromApi(jwt: string) {
+  const expiresAt = new Date(Date.now() + loginExpSeconds * 1000);
+  const loginSession = jwt;
   const cookieStore = await cookies();
 
   cookieStore.set(loginCookieName, loginSession, {
@@ -55,19 +56,37 @@ export async function getLoginSession() {
   return verifyJwt(jwt);
 }
 
+export async function getLoginSessionForApi() {
+  const cookieStore = await cookies();
+
+  const jwt = cookieStore.get(loginCookieName)?.value;
+
+  if (!jwt) return false;
+
+  return jwt;
+}
+
 export async function verifyLoginSession() {
   const jwtPayload = await getLoginSession();
 
-  if (!jwtPayload) return false
+  if (!jwtPayload) return false;
 
   return jwtPayload?.username === process.env.LOGIN_USER;
 }
 
-export async function requiredLoginSessionOrRedirect() {
+export async function requireLoginSessionOrRedirect() {
   const isAuthenticated = await verifyLoginSession();
 
   if (!isAuthenticated) {
     redirect('/admin/login');
+  }
+}
+
+export async function requireLoginSessionForApiOrRedirect() {
+  const isAuthenticated = await getLoginSessionForApi();
+
+  if (!isAuthenticated) {
+    redirect('/login');
   }
 }
 
@@ -92,5 +111,4 @@ export async function verifyJwt(jwt: string | undefined = '') {
     console.log('Invalid Token');
     return false;
   }
-
 }
