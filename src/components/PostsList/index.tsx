@@ -1,19 +1,28 @@
-import { PostCoverImage } from "@/PostCoverImage";
-import { PostSummary } from "../PostSummary";
-import { findAllPublicPostCached } from "@/lib/post/queries/public";
+import { findAllPublicPostsFromApiCached } from '@/lib/post/queries/public';
+
+import { PostSummary } from '../PostSummary';
+import { PostCoverImage } from '@/PostCoverImage';
 
 export async function PostsList() {
-  const posts = await findAllPublicPostCached();
+  const postsRes = await findAllPublicPostsFromApiCached();
 
-  if (posts.length <= 1) return null
+  if (!postsRes.success) {
+    return null;
+  }
+
+  const posts = postsRes.data;
+
+  if (posts.length <= 1) {
+    return null;
+  }
 
   return (
-    <div className="grid grid-cols-1 mb-16 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className='grid grid-cols-1 mb-16 gap-8 sm:grid-cols-2 lg:grid-cols-3'>
       {posts.slice(1).map(post => {
-        const postLink = `/post/${post.slug}`
+        const postLink = `/post/${post.slug}`;
 
         return (
-          <div className="flex flex-col gap-4 group" key={post.id}>
+          <div className='flex flex-col gap-4 group' key={post.id}>
             <PostCoverImage
               linkProps={{
                 href: postLink,
@@ -23,21 +32,19 @@ export async function PostsList() {
                 height: 720,
                 src: post.coverImageUrl,
                 alt: post.title,
-                priority: true,
               }}
             />
 
             <PostSummary
               postLink={postLink}
-              postHeading="h2"
+              postHeading='h2'
               createdAt={post.createdAt}
               excerpt={post.excerpt}
               title={post.title}
             />
-        </div>
+          </div>
         );
       })}
     </div>
   );
-
 }
