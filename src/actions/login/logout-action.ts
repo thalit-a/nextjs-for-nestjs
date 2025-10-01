@@ -1,6 +1,6 @@
 'use server';
 
-import { deleteLoginSession } from "@/lib/login/manege-login";
+import { deleteLoginSession } from "@/lib/login/manage-login";
 import { asyncDelay } from "@/utils/async-delay";
 import { redirect } from "next/navigation";
 

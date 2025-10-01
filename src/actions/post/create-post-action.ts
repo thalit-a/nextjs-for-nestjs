@@ -1,6 +1,6 @@
 'use server';
 
-import { getLoginSessionForApi } from '@/lib/login/manege-login';
+import { getLoginSessionForApi } from '@/lib/login/manage-login';
 import {
   CreatePostForApiSchema,
   PublicPostForApiDto,

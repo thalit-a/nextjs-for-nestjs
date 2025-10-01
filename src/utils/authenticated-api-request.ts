@@ -1,6 +1,6 @@
 import 'server-only';
 import { ApiRequest, apiRequest } from './api-request';
-import { getLoginSessionForApi } from '@/lib/login/manege-login';
+import { getLoginSessionForApi } from '@/lib/login/manage-login';
 
 export async function authenticatedApiRequest<T>(
   path: string,
